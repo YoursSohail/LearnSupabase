@@ -11,6 +11,9 @@ android {
         .getProperty("supabaseKey")
     val url: String = com.android.build.gradle.internal.cxx.configure.gradleLocalProperties(rootDir)
         .getProperty("supabaseUrl")
+    val googleClientId: String = com.android.build.gradle.internal.cxx.configure.gradleLocalProperties(
+        rootDir
+    ).getProperty("googleClientId")
 
 
     defaultConfig {
@@ -26,6 +29,7 @@ android {
         }
         buildConfigField("String","supabaseKey","\"$key\"")
         buildConfigField("String","supabaseUrl","\"$url\"")
+        buildConfigField("String","googleClientId","\"$googleClientId\"")
     }
 
     buildTypes {
@@ -77,6 +81,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("io.github.jan-tennert.supabase:gotrue-kt:1.3.2")
+    implementation("io.github.jan-tennert.supabase:compose-auth:1.3.2")
+    implementation("io.github.jan-tennert.supabase:compose-auth-ui:1.3.2")
     implementation("io.ktor:ktor-client-cio:2.3.4")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
