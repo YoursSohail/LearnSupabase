@@ -5,6 +5,7 @@ import io.github.jan.supabase.compose.auth.ComposeAuth
 import io.github.jan.supabase.compose.auth.googleNativeLogin
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
+import io.github.jan.supabase.storage.Storage
 
 object SupabaseClient {
     val client = createSupabaseClient(
@@ -15,5 +16,6 @@ object SupabaseClient {
         install(ComposeAuth) {
             googleNativeLogin(serverClientId = BuildConfig.googleClientId)
         }
+        install(Storage)
     }
 }
