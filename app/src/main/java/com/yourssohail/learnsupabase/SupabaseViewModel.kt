@@ -5,12 +5,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yourssohail.learnsupabase.data.model.Note
 import com.yourssohail.learnsupabase.data.model.UserState
 import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.utils.SharedPreferenceHelper
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.gotrue.gotrue
+import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.minutes
@@ -23,7 +25,7 @@ class SupabaseViewModel : ViewModel() {
         viewModelScope.launch {
             val accessToken = client.gotrue.currentAccessTokenOrNull()
             val sharedPref = SharedPreferenceHelper(context)
-            sharedPref.saveStringData("accessToken",accessToken)
+            sharedPref.saveStringData("accessToken", accessToken)
         }
 
     }
@@ -47,18 +49,20 @@ class SupabaseViewModel : ViewModel() {
         }
     }
 
-    fun checkGoogleLoginStatus(context:Context,result: NativeSignInResult) {
+    fun checkGoogleLoginStatus(context: Context, result: NativeSignInResult) {
         _userState.value = UserState.Loading
         when (result) {
             is NativeSignInResult.Success -> {
                 saveToken(context)
                 _userState.value = UserState.Success("Logged in via Google")
             }
+
             is NativeSignInResult.ClosedByUser -> {}
             is NativeSignInResult.Error -> {
                 val message = result.message
                 _userState.value = UserState.Error(message)
             }
+
             is NativeSignInResult.NetworkError -> {
                 val message = result.message
                 _userState.value = UserState.Error(message)
@@ -73,7 +77,7 @@ class SupabaseViewModel : ViewModel() {
             try {
                 _userState.value = UserState.Loading
                 val token = getToken(context)
-                if(token.isNullOrEmpty()) {
+                if (token.isNullOrEmpty()) {
                     _userState.value = UserState.Success("User is not logged in!")
                 } else {
                     client.gotrue.retrieveUser(token)
@@ -87,64 +91,63 @@ class SupabaseViewModel : ViewModel() {
         }
     }
 
-    fun createBucket(name: String) {
+    fun saveNote() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                client.storage.createBucket(id = name) {
-                    public = false
-                    fileSizeLimit = 10.megabytes
-                }
-                _userState.value = UserState.Success("Created bucket successfully")
-            } catch(e: Exception) {
-                _userState.value = UserState.Error("Error: ${e.message}")
-            }
-        }
-    }
-
-    fun uploadFile(bucketName: String,fileName: String, byteArray: ByteArray) {
-        viewModelScope.launch {
-            try {
-                _userState.value = UserState.Loading
-                val bucket = client.storage[bucketName]
-                bucket.upload("$fileName.jpg",byteArray,true)
-                _userState.value = UserState.Success("File uploaded successfully!")
-            } catch(e: Exception) {
-                _userState.value = UserState.Error("Error: ${e.message}")
-            }
-        }
-    }
-
-    fun readFile(
-        bucketName: String,
-        fileName: String,
-        onImageUrlRetrieved: (url: String) -> Unit,
-    ) {
-        viewModelScope.launch {
-            try {
-                _userState.value = UserState.Loading
-                val bucket = client.storage[bucketName]
-                val url = bucket.createSignedUrl("$fileName.jpg", expiresIn = 20.minutes)
-                onImageUrlRetrieved(url)
-                _userState.value = UserState.Success("File read successfully!")
+                client.postgrest["test"].insert(
+                    Note(
+                        note = "This is my first note."
+                    ),
+                )
+                _userState.value = UserState.Success("Added note successfully!")
             } catch (e: Exception) {
                 _userState.value = UserState.Error("Error: ${e.message}")
             }
         }
     }
 
-    fun readPublicFile(
-        bucketName: String,
-        fileName: String,
-        onImageUrlRetrieved: (url: String) -> Unit
-    ) {
+    fun getNote() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                val bucket = client.storage[bucketName]
-                val url = bucket.publicUrl("$fileName.jpg")
-                onImageUrlRetrieved(url)
-                _userState.value = UserState.Success("File read successfully!")
+                val data = client.postgrest["test"]
+                    .select().decodeSingle<Note>()
+                _userState.value = UserState.Success("Data: ${data.note}")
+            } catch (e: Exception) {
+                _userState.value = UserState.Error("Error: ${e.message}")
+            }
+        }
+    }
+
+    fun updateNote() {
+        viewModelScope.launch {
+            try {
+                _userState.value = UserState.Loading
+                client.postgrest["test"]
+                    .update(
+                        {
+                            Note::note setTo "This is the updated note."
+                        }
+                    ) {
+                        Note::id eq 1
+                    }
+                _userState.value = UserState.Success("Note updated successfully!")
+            } catch (e: Exception) {
+                _userState.value = UserState.Error("Error: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteNote() {
+        viewModelScope.launch {
+            try {
+                _userState.value = UserState.Loading
+                client.postgrest["test"]
+                    .delete {
+                        Note::id eq 1
+                    }
+                _userState.value = UserState.Success("Note deleted successfully!")
             } catch (e: Exception) {
                 _userState.value = UserState.Error("Error: ${e.message}")
             }

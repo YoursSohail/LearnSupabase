@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -84,6 +85,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:compose-auth:1.3.2")
     implementation("io.github.jan-tennert.supabase:compose-auth-ui:1.3.2")
     implementation("io.github.jan-tennert.supabase:storage-kt:1.3.2")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:1.3.2")
     implementation("io.ktor:ktor-client-cio:2.3.4")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")

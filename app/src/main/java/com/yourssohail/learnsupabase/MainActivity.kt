@@ -6,8 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -94,40 +97,28 @@ fun MainScreen(
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        Button(onClick = { viewModel.createBucket("photos") }) {
-            Text(text = "Create bucket")
-        }
-        Button(onClick = {
-            action.startFlow()
-        }) {
-            Text(text = "Login via Google")
-        }
         OutlinedButton(
             onClick = { action.startFlow() },
             content = { ProviderButtonContent(provider = Google) })
-        Button(onClick = { launcher.launch("image/*") }) {
-            Text(text = "Select Image")
-        }
-        if(imageUri != null) {
-            Button(onClick = {
-                val imageByteArray = imageUri?.uriToByteArray(context)
-                imageByteArray?.let {
-                    viewModel.uploadFile("photos","newImage",it)
-                }
-            }) {
-                Text(text = "Upload Image")
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Button(onClick = { viewModel.saveNote() }) {
+                Text(text = "Save")
+            }
+            Button(onClick = { viewModel.getNote() }) {
+                Text(text = "Fetch")
+            }
+            Button(onClick = { viewModel.updateNote() }) {
+                Text(text = "Update")
+            }
+            Button(onClick = { viewModel.deleteNote() }) {
+                Text(text = "Delete")
             }
         }
-        Button(onClick = { viewModel.readFile("photos","newImage"){
-            imageUrl = "${BuildConfig.supabaseUrl}/storage/v1/$it"
-        } }) {
-            Text(text = "Get Image")
-        }
-        Button(onClick = { viewModel.readPublicFile("photos","newImage"){
-            imageUrl = it
-        } }) {
-            Text(text = "Get Public Image")
-        }
+
         Button(
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
             onClick = {
@@ -153,10 +144,5 @@ fun MainScreen(
         }
 
         Text(text = currentUserState)
-        Text(text = if (imageUri != null) "Image is selected" else "")
-
-        if(imageUrl.isNotEmpty()) {
-            AsyncImage(model = imageUrl, contentDescription = "random image")
-        }
     }
 }
