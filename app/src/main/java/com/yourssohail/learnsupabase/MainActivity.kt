@@ -32,7 +32,7 @@ import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.ui.theme.LearnSupabaseTheme
 import com.yourssohail.learnsupabase.utils.uriToByteArray
 import io.github.jan.supabase.annotations.SupabaseExperimental
-import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
+import io.github.jan.supabase.compose.auth.composable.rememberLoginWithGoogle
 import io.github.jan.supabase.compose.auth.composeAuth
 import io.github.jan.supabase.compose.auth.ui.ProviderButtonContent
 import io.github.jan.supabase.gotrue.providers.Google
@@ -78,7 +78,7 @@ fun MainScreen(
         imageUri = uri
     }
 
-    val action = client.composeAuth.rememberSignInWithGoogle(
+    val action = client.composeAuth.rememberLoginWithGoogle(
         onResult = { result -> viewModel.checkGoogleLoginStatus(context, result) },
         fallback = {}
     )
