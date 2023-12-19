@@ -1,11 +1,8 @@
 package com.yourssohail.learnsupabase
 
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,12 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.yourssohail.learnsupabase.data.model.UserState
 import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.ui.theme.LearnSupabaseTheme
 import io.github.jan.supabase.annotations.SupabaseExperimental
-import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
+import io.github.jan.supabase.compose.auth.composable.rememberLoginWithGoogle
 import io.github.jan.supabase.compose.auth.composeAuth
 import io.github.jan.supabase.compose.auth.ui.ProviderButtonContent
 import io.github.jan.supabase.gotrue.providers.Google
@@ -65,7 +61,7 @@ fun MainScreen(
 
     var currentUserState by remember { mutableStateOf("") }
 
-    val action = client.composeAuth.rememberSignInWithGoogle(
+    val action = client.composeAuth.rememberLoginWithGoogle(
         onResult = { result -> viewModel.checkGoogleLoginStatus(context, result) },
         fallback = {}
     )

@@ -11,11 +11,9 @@ import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.utils.SharedPreferenceHelper
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.exceptions.RestException
-import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.gotrue
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.minutes
 
 class SupabaseViewModel : ViewModel() {
     private val _userState = mutableStateOf<UserState>(UserState.Loading)
@@ -23,7 +21,7 @@ class SupabaseViewModel : ViewModel() {
 
     private fun saveToken(context: Context) {
         viewModelScope.launch {
-            val accessToken = client.auth.currentAccessTokenOrNull()
+            val accessToken = client.gotrue.currentAccessTokenOrNull()
             val sharedPref = SharedPreferenceHelper(context)
             sharedPref.saveStringData("accessToken", accessToken)
         }
@@ -40,7 +38,7 @@ class SupabaseViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                client.auth.signOut()
+                client.gotrue.logout()
                 sharedPref.clearPreferences()
                 _userState.value = UserState.Success("Logged out successfully!")
             } catch (e: Exception) {
@@ -80,8 +78,8 @@ class SupabaseViewModel : ViewModel() {
                 if (token.isNullOrEmpty()) {
                     _userState.value = UserState.Success("User is not logged in!")
                 } else {
-                    client.auth.retrieveUser(token)
-                    client.auth.refreshCurrentSession()
+                    client.gotrue.retrieveUser(token)
+                    client.gotrue.refreshCurrentSession()
                     saveToken(context)
                     _userState.value = UserState.Success("User is already logged in!")
                 }
@@ -130,9 +128,7 @@ class SupabaseViewModel : ViewModel() {
                             Note::note setTo "This is the updated note."
                         }
                     ) {
-                        filter {
-                            Note::id eq 1
-                        }
+                        Note::id eq 1
                     }
                 _userState.value = UserState.Success("Note updated successfully!")
             } catch (e: Exception) {
@@ -147,9 +143,7 @@ class SupabaseViewModel : ViewModel() {
                 _userState.value = UserState.Loading
                 client.postgrest["test"]
                     .delete {
-                        filter {
-                            Note::id eq 1
-                        }
+                        Note::id eq 1
                     }
                 _userState.value = UserState.Success("Note deleted successfully!")
             } catch (e: Exception) {
