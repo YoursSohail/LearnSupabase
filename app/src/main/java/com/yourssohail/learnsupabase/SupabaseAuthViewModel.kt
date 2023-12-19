@@ -9,7 +9,7 @@ import com.yourssohail.learnsupabase.data.model.UserState
 import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.utils.SharedPreferenceHelper
 import io.github.jan.supabase.exceptions.RestException
-import io.github.jan.supabase.gotrue.gotrue
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.launch
 
@@ -25,7 +25,7 @@ class SupabaseAuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                client.gotrue.signUpWith(Email) {
+                client.auth.signUpWith(Email) {
                     email = userEmail
                     password = userPassword
                 }
@@ -40,7 +40,7 @@ class SupabaseAuthViewModel : ViewModel() {
 
     private fun saveToken(context: Context) {
         viewModelScope.launch {
-            val accessToken = client.gotrue.currentAccessTokenOrNull()
+            val accessToken = client.auth.currentAccessTokenOrNull()
             val sharedPref = SharedPreferenceHelper(context)
             sharedPref.saveStringData("accessToken",accessToken)
         }
@@ -60,7 +60,7 @@ class SupabaseAuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                client.gotrue.loginWith(Email) {
+                client.auth.signInWith(Email) {
                     email = userEmail
                     password = userPassword
                 }
@@ -78,7 +78,7 @@ class SupabaseAuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                client.gotrue.logout()
+                client.auth.signOut()
                 sharedPref.clearPreferences()
                 _userState.value = UserState.Success("Logged out successfully!")
             } catch (e: Exception) {
@@ -97,8 +97,8 @@ class SupabaseAuthViewModel : ViewModel() {
                 if(token.isNullOrEmpty()) {
                     _userState.value = UserState.Success("User not logged in!")
                 } else {
-                    client.gotrue.retrieveUser(token)
-                    client.gotrue.refreshCurrentSession()
+                    client.auth.retrieveUser(token)
+                    client.auth.refreshCurrentSession()
                     saveToken(context)
                     _userState.value = UserState.Success("User already logged in!")
                 }
