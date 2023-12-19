@@ -1,11 +1,8 @@
 package com.yourssohail.learnsupabase
 
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,11 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.yourssohail.learnsupabase.data.model.UserState
 import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.ui.theme.LearnSupabaseTheme
-import com.yourssohail.learnsupabase.utils.uriToByteArray
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
 import io.github.jan.supabase.compose.auth.composeAuth
@@ -65,21 +60,6 @@ fun MainScreen(
     val userState by viewModel.userState
 
     var currentUserState by remember { mutableStateOf("") }
-
-    var imageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-
-    var imageUrl by remember {
-        mutableStateOf("")
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract =
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUri = uri
-    }
 
     val action = client.composeAuth.rememberSignInWithGoogle(
         onResult = { result -> viewModel.checkGoogleLoginStatus(context, result) },
