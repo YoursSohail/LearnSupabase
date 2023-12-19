@@ -10,8 +10,7 @@ import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.utils.SharedPreferenceHelper
 import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.exceptions.RestException
-import io.github.jan.supabase.gotrue.auth
-import io.github.jan.supabase.gotrue.providers.builtin.Email
+import io.github.jan.supabase.gotrue.gotrue
 import kotlinx.coroutines.launch
 
 class SupabaseAuthViewModel : ViewModel() {
@@ -20,7 +19,7 @@ class SupabaseAuthViewModel : ViewModel() {
 
     private fun saveToken(context: Context) {
         viewModelScope.launch {
-            val accessToken = client.auth.currentAccessTokenOrNull()
+            val accessToken = client.gotrue.currentAccessTokenOrNull()
             val sharedPref = SharedPreferenceHelper(context)
             sharedPref.saveStringData("accessToken",accessToken)
         }
@@ -37,7 +36,7 @@ class SupabaseAuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 _userState.value = UserState.Loading
-                client.auth.signOut()
+                client.gotrue.logout()
                 sharedPref.clearPreferences()
                 _userState.value = UserState.Success("Logged out successfully!")
             } catch (e: Exception) {
@@ -75,8 +74,8 @@ class SupabaseAuthViewModel : ViewModel() {
                 if(token.isNullOrEmpty()) {
                     _userState.value = UserState.Success("User is not logged in!")
                 } else {
-                    client.auth.retrieveUser(token)
-                    client.auth.refreshCurrentSession()
+                    client.gotrue.retrieveUser(token)
+                    client.gotrue.refreshCurrentSession()
                     saveToken(context)
                     _userState.value = UserState.Success("User is already logged in!")
                 }
