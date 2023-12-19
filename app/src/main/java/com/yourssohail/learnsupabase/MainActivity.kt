@@ -33,9 +33,8 @@ import coil.compose.AsyncImage
 import com.yourssohail.learnsupabase.data.model.UserState
 import com.yourssohail.learnsupabase.data.network.SupabaseClient.client
 import com.yourssohail.learnsupabase.ui.theme.LearnSupabaseTheme
-import com.yourssohail.learnsupabase.utils.uriToByteArray
 import io.github.jan.supabase.annotations.SupabaseExperimental
-import io.github.jan.supabase.compose.auth.composable.rememberLoginWithGoogle
+import io.github.jan.supabase.compose.auth.composable.rememberSignInWithGoogle
 import io.github.jan.supabase.compose.auth.composeAuth
 import io.github.jan.supabase.compose.auth.ui.ProviderButtonContent
 import io.github.jan.supabase.gotrue.providers.Google
@@ -66,22 +65,7 @@ fun MainScreen(
 
     var currentUserState by remember { mutableStateOf("") }
 
-    var imageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-
-    var imageUrl by remember {
-        mutableStateOf("")
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract =
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        imageUri = uri
-    }
-
-    val action = client.composeAuth.rememberLoginWithGoogle(
+    val action = client.composeAuth.rememberSignInWithGoogle(
         onResult = { result -> viewModel.checkGoogleLoginStatus(context, result) },
         fallback = {}
     )
