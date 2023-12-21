@@ -13,9 +13,14 @@ import io.github.jan.supabase.compose.auth.composable.NativeSignInResult
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.storage.storage
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.minutes
+import kotlinx.serialization.json.Json
 
 class SupabaseViewModel : ViewModel() {
     private val _userState = mutableStateOf<UserState>(UserState.Loading)
@@ -152,6 +157,38 @@ class SupabaseViewModel : ViewModel() {
                         }
                     }
                 _userState.value = UserState.Success("Note deleted successfully!")
+            } catch (e: Exception) {
+                _userState.value = UserState.Error("Error: ${e.message}")
+            }
+        }
+    }
+
+    fun realtimeDb(scope: CoroutineScope) {
+        viewModelScope.launch {
+            try {
+                _userState.value = UserState.Loading
+                val channel = client.channel("test")
+                val dataFlow = channel.postgresChangeFlow<PostgresAction>(schema = "public")
+
+                dataFlow.onEach {
+                    when(it) {
+                        is PostgresAction.Delete -> {
+                            _userState.value = UserState.Success("Data deleted")
+                        }
+                        is PostgresAction.Insert -> {
+                            _userState.value = UserState.Success("Data inserted")
+                        }
+                        is PostgresAction.Select -> {
+                            _userState.value = UserState.Success("Data selected")
+                        }
+                        is PostgresAction.Update -> {
+                            val stringifiedData = it.record.toString()
+                            val data = Json.decodeFromString<Note>(stringifiedData)
+                            _userState.value = UserState.Success("Data: ${data.note}")
+                        }
+                    }
+                }.launchIn(scope)
+                channel.subscribe()
             } catch (e: Exception) {
                 _userState.value = UserState.Error("Error: ${e.message}")
             }

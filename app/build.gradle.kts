@@ -86,6 +86,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:compose-auth-ui:2.0.1")
     implementation("io.github.jan-tennert.supabase:storage-kt:2.0.1")
     implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.1")
+    implementation("io.github.jan-tennert.supabase:realtime-kt:2.0.1")
     implementation("io.ktor:ktor-client-cio:2.3.5")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")

@@ -70,6 +70,7 @@ fun MainScreen(
         viewModel.isUserLoggedIn(
             context,
         )
+        viewModel.realtimeDb(this)
     }
 
     Column(
